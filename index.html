@@ -18,14 +18,14 @@
         .container {
             width: 100%; max-width: 480px; background-color: #ffffff;
             min-height: 100vh; position: relative; 
-            overflow-x: hidden; /* 애니메이션 시 가로 흔들림 방지 */
+            overflow-x: hidden;
         }
         .profile-img-global {
             background-image: url('https://media.discordapp.net/attachments/1354404817115807926/1493105956652060834/Screenshot_20260413_132620_KakaoTalk.jpg?ex=69ddc2c8&is=69dc7148&hm=2e373534f617da63df213dac4fab3bcb6933d75ee63c0832159a2c90e8941f2f&=&format=webp&width=438&height=438');
             background-size: cover; background-position: center;
         }
         
-        #home-view { padding-bottom: 20px; } /* 패딩 위치 이동 */
+        #home-view { padding-bottom: 20px; }
         
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; font-size: 22px; color: #222; }
         .header-icons { display: flex; align-items: center; gap: 16px; }
@@ -63,7 +63,6 @@
             overflow: hidden; text-overflow: ellipsis; min-height: 48px;
         }
         
-        /* 포스트 뷰 모바일 최적화 (높이 고정 해제, 네이티브 스크롤 유도) */
         #post-view { 
             display: none; background-color: #fff; flex-direction: column; 
             min-height: 100vh; padding-bottom: 50px;
@@ -81,7 +80,6 @@
         .author-time { font-size: 12px; color: #999; margin-top: 2px; }
         .author-more { color: #ccc; letter-spacing: 2px; }
         
-        /* 텍스트 줄바꿈 최적화 */
         .post-title-text { 
             padding: 0 20px 15px 20px; font-size: 15px; font-weight: 400; color: #111; 
             line-height: 1.5; white-space: pre-wrap; word-break: break-word;
@@ -133,8 +131,8 @@
 
     <div id="post-view" class="hide">
         <div class="post-top-header">
-            <div class="post-top-left">
-                <i class="fa-solid fa-arrow-left" onclick="closePost()"></i>
+            <div class="post-top-left" onclick="handleManualBack()">
+                <i class="fa-solid fa-arrow-left"></i>
                 <span>포스트</span>
             </div>
             <div class="post-top-right">
@@ -159,7 +157,6 @@
 </div>
 
 <script>
-    // 포스트 목록
     let postData = [
         {
             text: "거래완료",
@@ -241,9 +238,10 @@
         
         postView.classList.remove('slide-out');
         postView.classList.add('slide-in');
-        
-        // 모바일 최적화를 위해 브라우저 최상단으로 스크롤 이동
         window.scrollTo(0, 0);
+
+        // History API를 사용하여 가짜 페이지 상태 추가 (뒤로가기 방어막)
+        history.pushState({ postOpen: true }, '', '#post');
     }
 
     function closePost() {
@@ -257,11 +255,25 @@
             postView.classList.add('hide');
             postView.style.display = 'none';
             homeView.classList.remove('hide');
-            
-            // 닫을 때도 최상단 스크롤 (원할 경우 기존 위치 저장 로직 추가 가능)
             window.scrollTo(0, 0);
         }, 300);
     }
+
+    // UI상 뒤로가기 화살표를 눌렀을 때
+    function handleManualBack() {
+        // 뒤로가기 기록이 하나 쌓여있으므로, 직접 기록을 뒤로 돌려줌
+        // 이렇게 하면 popstate 이벤트가 발생하여 자연스럽게 닫힘
+        history.back(); 
+    }
+
+    // 모바일 기기의 시스템 뒤로가기 버튼 감지
+    window.addEventListener('popstate', function(event) {
+        const postView = document.getElementById('post-view');
+        // 포스트가 열려있는 상태에서 뒤로가기가 눌렸다면 포스트를 닫는다.
+        if (!postView.classList.contains('hide')) {
+            closePost();
+        }
+    });
 </script>
 </body>
 </html>
