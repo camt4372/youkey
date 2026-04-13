@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="유키님의 오픈프로필">
     <meta property="og:title" content="거내 100+">
     <meta property="og:description" content="유키님의 오픈프로필">
@@ -17,12 +17,16 @@
         }
         .container {
             width: 100%; max-width: 480px; background-color: #ffffff;
-            min-height: 100vh; position: relative; padding-bottom: 20px;
+            min-height: 100vh; position: relative; 
+            overflow-x: hidden; /* 애니메이션 시 가로 흔들림 방지 */
         }
         .profile-img-global {
             background-image: url('https://media.discordapp.net/attachments/1354404817115807926/1493105956652060834/Screenshot_20260413_132620_KakaoTalk.jpg?ex=69ddc2c8&is=69dc7148&hm=2e373534f617da63df213dac4fab3bcb6933d75ee63c0832159a2c90e8941f2f&=&format=webp&width=438&height=438');
             background-size: cover; background-position: center;
         }
+        
+        #home-view { padding-bottom: 20px; } /* 패딩 위치 이동 */
+        
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; font-size: 22px; color: #222; }
         .header-icons { display: flex; align-items: center; gap: 16px; }
         .profile-area { display: flex; flex-direction: column; align-items: center; margin-top: 10px; }
@@ -58,7 +62,12 @@
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
             overflow: hidden; text-overflow: ellipsis; min-height: 48px;
         }
-        #post-view { display: none; background-color: #fff; height: 100vh; flex-direction: column; overflow-y: auto; padding-bottom: 50px;}
+        
+        /* 포스트 뷰 모바일 최적화 (높이 고정 해제, 네이티브 스크롤 유도) */
+        #post-view { 
+            display: none; background-color: #fff; flex-direction: column; 
+            min-height: 100vh; padding-bottom: 50px;
+        }
         .post-top-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border-bottom: 1px solid #eee; position: sticky; top: 0; background: #fff; z-index: 10;}
         .post-top-left { display: flex; align-items: center; gap: 15px; font-size: 18px; font-weight: 600; }
         .post-top-left i { cursor: pointer; padding: 5px; }
@@ -71,9 +80,14 @@
         .author-name { font-size: 15px; font-weight: bold; color: #111; }
         .author-time { font-size: 12px; color: #999; margin-top: 2px; }
         .author-more { color: #ccc; letter-spacing: 2px; }
-        .post-title-text { padding: 0 20px 15px 20px; font-size: 15px; font-weight: 400; color: #111; line-height: 1.5; white-space: pre-wrap;}
+        
+        /* 텍스트 줄바꿈 최적화 */
+        .post-title-text { 
+            padding: 0 20px 15px 20px; font-size: 15px; font-weight: 400; color: #111; 
+            line-height: 1.5; white-space: pre-wrap; word-break: break-word;
+        }
         .post-image-container { width: 100%; }
-        .post-image-container img { width: 100%; display: block; }
+        .post-image-container img { width: 100%; height: auto; display: block; }
         .hide { display: none !important; }
 
         @keyframes slideInRight {
@@ -195,7 +209,6 @@
     ];
 
     window.onload = () => {
-        // 배열을 역순으로 뒤집어 가장 마지막에 입력한 데이터가 맨 처음에 렌더링되도록 처리
         postData.reverse();
 
         const gridContainer = document.getElementById('post-grid');
@@ -229,7 +242,8 @@
         postView.classList.remove('slide-out');
         postView.classList.add('slide-in');
         
-        postView.scrollTop = 0;
+        // 모바일 최적화를 위해 브라우저 최상단으로 스크롤 이동
+        window.scrollTo(0, 0);
     }
 
     function closePost() {
@@ -243,6 +257,9 @@
             postView.classList.add('hide');
             postView.style.display = 'none';
             homeView.classList.remove('hide');
+            
+            // 닫을 때도 최상단 스크롤 (원할 경우 기존 위치 저장 로직 추가 가능)
+            window.scrollTo(0, 0);
         }, 300);
     }
 </script>
